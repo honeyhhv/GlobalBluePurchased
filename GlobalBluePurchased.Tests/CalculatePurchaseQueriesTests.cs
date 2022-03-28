@@ -4,8 +4,6 @@ using FluentAssertions;
 using GlobalBluePurchased.Domain.Core.Models;
 using GlobalBluePurchased.Domain.Handler;
 using GlobalBluePurchased.Domain.Request;
-using GlobalBluePurchased.Domain.Resources.ResourceManagers.Interface;
-using Moq;
 using NUnit.Framework;
 
 namespace GlobalBluePurchased.Tests
