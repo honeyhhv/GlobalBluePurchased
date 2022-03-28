@@ -14,6 +14,7 @@ namespace GlobalBluePurchased.Tests
     {
         private CalculatePurchaseQueriesHandler _handler;
         private CalculatePurchaseValidator _validator;
+        
         [SetUp]
         public void Setup()
         {
