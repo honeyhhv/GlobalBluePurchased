@@ -19,16 +19,20 @@ namespace GlobalBluePurchased.Tests
         {
             _validator = new CalculatePurchaseValidator(new MockResourceManager());
 
-            _handler = new CalculatePurchaseQueriesHandler(new MockResourceManager());
+            _handler = new CalculatePurchaseQueriesHandler();
         }
 
         [Test]
         public async Task CalculatePurchaseQueries_FailedValidationTest()
         {
-            var query = new CalculatePurchaseQueries();
+            var query = new CalculatePurchaseQueries()
+            {
+                Gross = 0
+            };
             var validatorResult = await _validator.ValidateAsync(query, CancellationToken.None);
             validatorResult.IsValid.Should().BeFalse();
         }
+
         [Test]
         public async Task CalculatePurchaseQueries_ValidationNormalTest()
         {
@@ -40,17 +44,51 @@ namespace GlobalBluePurchased.Tests
             var validatorResult = await _validator.ValidateAsync(query, CancellationToken.None);
             validatorResult.IsValid.Should().BeTrue();
         }
-        
+
         [Test]
-        public async Task CalculatePurchaseQueries_ValidationNormalTest()
+        public async Task CalculatePurchaseQueries_NetHasValueNormalTest()
         {
             var query = new CalculatePurchaseQueries()
             {
                 PurchaseRate = PurchaseRate.TenPercent,
-                Gross = 1500
+                Net = 1000
             };
-            var validatorResult = await _validator.ValidateAsync(query, CancellationToken.None);
-            validatorResult.IsValid.Should().BeTrue();
+            var result = await _handler.Handle(query, CancellationToken.None);
+
+            Assert.IsNotNull(result);
+
+            result.Gross.Value.Should().Be(1100);
+            result.Vat.Value.Should().Be(100);
+        }
+        [Test]
+        public async Task CalculatePurchaseQueries_GrossHasValueNormalTest()
+        {
+            var query = new CalculatePurchaseQueries()
+            {
+                PurchaseRate = PurchaseRate.ThirteenPercent,
+                Gross = 1695
+            };
+            var result = await _handler.Handle(query, CancellationToken.None);
+
+            Assert.IsNotNull(result);
+
+            result.Net.Value.Should().Be(1500);
+            result.Vat.Value.Should().Be(195);
+        }
+        [Test]
+        public async Task CalculatePurchaseQueries_VatHasValueNormalTest()
+        {
+            var query = new CalculatePurchaseQueries()
+            {
+                PurchaseRate = PurchaseRate.TwentyPercent,
+                Vat = 300
+            };
+            var result = await _handler.Handle(query, CancellationToken.None);
+
+            Assert.IsNotNull(result);
+
+            result.Net.Value.Should().Be(1500);
+            result.Gross.Value.Should().Be(1800);
         }
     }
 }

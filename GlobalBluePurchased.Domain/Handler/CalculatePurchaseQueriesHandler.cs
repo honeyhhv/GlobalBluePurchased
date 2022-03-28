@@ -21,7 +21,7 @@ namespace GlobalBluePurchased.Domain.Handler
             else if (request.Gross.HasValue)
                 purchase = new Gross(request.Gross.Value);
             else if (request.Vat.HasValue)
-                purchase = new Gross(request.Vat.Value);
+                purchase = new Vat(request.Vat.Value);
             else
                 return null;
             return purchase.Calculate(request.PurchaseRate);
