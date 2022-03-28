@@ -10,7 +10,15 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using GlobalBluePurchased.API.Common;
+using GlobalBluePurchased.Domain.Core.Models;
+using GlobalBluePurchased.Domain.Handler;
+using GlobalBluePurchased.Domain.Request;
+using MediatR;
 
 namespace GlobalBluePurchased.API
 {
@@ -27,11 +35,17 @@ namespace GlobalBluePurchased.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers();
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CalculatePurchaseValidator>());
+
+            services.AddValidatorsFromAssembly(ServiceAssembly.Current);
+
+            services.AddScoped<IRequestHandler<CalculatePurchaseQueries, ResultDto>, CalculatePurchaseQueriesHandler>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GlobalBluePurchased.API", Version = "v1" });
             });
+            services.AddMediatR(typeof(Startup));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
