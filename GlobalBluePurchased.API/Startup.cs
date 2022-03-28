@@ -10,7 +10,11 @@ using GlobalBluePurchased.API.Common;
 using GlobalBluePurchased.Domain.Core.Models;
 using GlobalBluePurchased.Domain.Handler;
 using GlobalBluePurchased.Domain.Request;
+using GlobalBluePurchased.Domain.ResourceManagers;
+using GlobalBluePurchased.Domain.Resources;
+using GlobalBluePurchased.Domain.Resources.ResourceManagers.Interface;
 using MediatR;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace GlobalBluePurchased.API
 {
@@ -27,16 +31,27 @@ namespace GlobalBluePurchased.API
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CalculatePurchaseValidator>());
-
+            services.AddLocalization(opt => opt.ResourcesPath = "Resources");
+            services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CalculatePurchaseValidator>())
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization(options =>
+            {
+                options.DataAnnotationLocalizerProvider = (type, factory) =>
+                    factory.Create(typeof(SharedResource));
+            });
             services.AddValidatorsFromAssembly(ServiceAssembly.Current);
 
             services.AddScoped<IRequestHandler<CalculatePurchaseQueries, ResultDto>, CalculatePurchaseQueriesHandler>();
+
+
+            services.AddScoped<IResourceManager, ResourceManager<SharedResource>>();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "GlobalBluePurchased.API", Version = "v1" });
             });
+            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
             services.AddMediatR(typeof(Startup));
         }
 
@@ -56,6 +71,8 @@ namespace GlobalBluePurchased.API
 
             app.UseAuthorization();
 
+            app.UseRequestLocalization();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

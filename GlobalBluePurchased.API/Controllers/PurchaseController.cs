@@ -22,7 +22,8 @@ namespace GlobalBluePurchased.API.Controllers
         {
             _mediator = mediator;
         }
-        [HttpGet]
+        
+        [HttpGet("calculatePurchased")]
         public async Task<ActionResult<ResultDto>> Get([FromQuery] CalculatePurchaseQueries data)
         {
             var result = await _mediator.Send(data);

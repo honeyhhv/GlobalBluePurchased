@@ -2,6 +2,8 @@
 using FluentValidation;
 using GlobalBluePurchased.Domain.Core.Models;
 using GlobalBluePurchased.Domain.Core.Models.ValueObjects;
+using GlobalBluePurchased.Domain.Resources;
+using GlobalBluePurchased.Domain.Resources.ResourceManagers.Interface;
 using MediatR;
 
 namespace GlobalBluePurchased.Domain.Request
@@ -14,11 +16,11 @@ namespace GlobalBluePurchased.Domain.Request
         public PurchaseRate PurchaseRate { get; set; }
     }
 
-    public abstract class CalculatePurchaseValidator : AbstractValidator<CalculatePurchaseQueries>
+    public class CalculatePurchaseValidator : AbstractValidator<CalculatePurchaseQueries>
     {
-        protected CalculatePurchaseValidator()
+        public CalculatePurchaseValidator(IResourceManager resourceManager)
         {
-            RuleFor(x => x.PurchaseRate).IsInEnum().WithMessage("The Rate is out of range");
+            RuleFor(x => x.PurchaseRate).IsInEnum().WithMessage(resourceManager[SharedResource.OutOfRangeErrorMessage]);
         }
     }
 
